@@ -8,7 +8,7 @@ SECRET_KEY = 'django-insecure-4&^&$6x#^@f$le2&q+8ezy4)dz2*bk2+jb4i+-$da8wjxee=hi
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '123.123.123.123', '127.0.0.1', '158.160.145.21', 'foodgrams.duckdns.org',]
+ALLOWED_HOSTS = ['localhost', '123.123.123.123', '127.0.0.1', '158.160.145.21', 'foodgrams.duckdns.org']
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
