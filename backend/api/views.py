@@ -262,11 +262,11 @@ class GetRecipesViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk=None):
         recipe = self.get_object()
 
-        url = f'https://foodgrams.duckdns.org/api/recipes/{recipe.id}/'
+        url = f'https://foodgrams.duckdns.org/recipes/{recipe.id}/'
 
         s = pyshorteners.Shortener()
 
-        short_url = s.tinyurl.short(url)
+        short_url = s.clckru.short(url)
 
         return Response({
             'short-link': short_url
