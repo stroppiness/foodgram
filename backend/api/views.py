@@ -262,9 +262,7 @@ class GetRecipesViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk=None):
         recipe = self.get_object()
 
-        url = request.build_absolute_uri(
-            f'/api/recipes/{recipe.id}/'
-        )
+        url = f'https://foodgrams.duckdns.org/api/recipes/{recipe.id}/'
 
         s = pyshorteners.Shortener()
 
