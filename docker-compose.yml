@@ -1,0 +1,50 @@
+volumes:
+  foodgram_db:
+    name: foodgram_db
+  static:
+    name: static
+  foodgram_media:
+    name: foodgram_media
+
+services:
+  db:
+    image: postgres:15
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - foodgram_db:/var/lib/postgresql/data
+
+  backend:
+    image: stroppiness/foodgram_backend:latest
+    container_name: foodgram_backend
+    depends_on: 
+      - db
+    restart: on-failure
+    build: ./backend/
+    env_file: .env
+    volumes:
+      - static:/backend_static
+      - foodgram_media:/app/media
+
+  frontend:
+    image: stroppiness/foodgram_frontend:latest
+    container_name: foodgram_frontend
+    restart: on-failure
+    env_file: .env
+    build: ./frontend/
+    command: cp -r /app/build/. /static/
+    volumes:
+      - static:/static
+
+  gateway:
+    image: stroppiness/foodgram_gateway
+    container_name: nginx_container
+    restart: on-failure
+    build: ./infra/
+    env_file: .env
+    ports:
+      - 8080:80
+    volumes:
+      - static:/static
+      - foodgram_media:/media
