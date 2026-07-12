@@ -261,15 +261,18 @@ class GetRecipesViewSet(viewsets.ModelViewSet):
     )
     def get_link(self, request, pk=None):
         recipe = self.get_object()
-        s = pyshorteners.Shortener()
 
         url = request.build_absolute_uri(
             f'/api/recipes/{recipe.id}/'
         )
 
-        short_url = s.clckru.short(url)
+        s = pyshorteners.Shortener()
 
-        return Response({'short-link': short_url})
+        short_url = s.tinyurl.short(url)
+
+        return Response({
+            'short-link': short_url
+        })
 
     @action(
         detail=False,
