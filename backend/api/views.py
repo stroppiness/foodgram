@@ -1,4 +1,5 @@
 import pyshorteners
+from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -264,9 +265,11 @@ class GetRecipesViewSet(viewsets.ModelViewSet):
 
         url = f'https://foodgrams.duckdns.org/recipes/{recipe.id}/'
 
-        s = pyshorteners.Shortener()
+        s = pyshorteners.Shortener(
+            api_key=settings.BITLY_TOKEN
+        )
 
-        short_url = s.clckru.short(url)
+        short_url = s.bitly.short(url)
 
         return Response({
             'short-link': short_url

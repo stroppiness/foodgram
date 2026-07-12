@@ -12,6 +12,8 @@ ALLOWED_HOSTS = ['localhost', '123.123.123.123', '127.0.0.1', '158.160.145.21', 
 
 AUTH_USER_MODEL = 'user.CustomUser'
 
+BITLY_TOKEN = os.getenv('BITLY_TOKEN')
+
 
 INSTALLED_APPS = [
     'user.apps.UserConfig',

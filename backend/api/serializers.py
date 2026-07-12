@@ -3,8 +3,7 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from .fields import Base64ImageField
-from .models import (Ingredient, Recipe, RecipeIngredient, Tag,
-                     User)
+from .models import Ingredient, Recipe, RecipeIngredient, Tag, User
 
 
 class SignupSerializer(serializers.ModelSerializer):
