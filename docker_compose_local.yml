@@ -21,6 +21,7 @@ services:
     depends_on: 
       - db
     restart: on-failure
+    build: ./backend/
     command: >
       sh -c "
       python manage.py migrate &&
@@ -37,6 +38,7 @@ services:
     container_name: foodgram_frontend
     restart: on-failure
     env_file: .env
+    build: ./frontend/
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
@@ -45,6 +47,7 @@ services:
     image: stroppiness/foodgram_gateway
     container_name: nginx_container
     restart: on-failure
+    build: ./infra/
     env_file: .env
     ports:
       - 8080:80
