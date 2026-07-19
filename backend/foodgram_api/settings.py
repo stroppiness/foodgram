@@ -1,18 +1,20 @@
 import os
-from datetime import timedelta
+from dotenv import load_dotenv
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-4&^&$6x#^@f$le2&q+8ezy4)dz2*bk2+jb4i+-$da8wjxee=hi'
+load_dotenv()
 
-DEBUG = False
+SECRET_KEY = os.getenv('SECRET_KEY')
+
+DEBUG = True
+
+USE_SQLITE = os.getenv('USE_SQLITE')
 
 ALLOWED_HOSTS = ['localhost', '123.123.123.123', '127.0.0.1', '158.160.145.21', 'foodgrams.duckdns.org']
 
-AUTH_USER_MODEL = 'user.CustomUser'
-
-BITLY_TOKEN = os.getenv('BITLY_TOKEN')
+AUTH_USER_MODEL = 'user.User'
 
 
 INSTALLED_APPS = [
@@ -27,6 +29,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'djoser',
 ]
 
 REST_FRAMEWORK = {
@@ -39,9 +42,8 @@ REST_FRAMEWORK = {
     ],
 }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Token',),
+DJOSER = {
+    'LOGIN_FIELD': 'email',
 }
 
 MIDDLEWARE = [
@@ -78,16 +80,25 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram_api.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'postgres'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
-        'PORT': os.getenv('DB_PORT', 5432)
+if USE_SQLITE == 'True':
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB', 'postgres'),
+            'USER': os.getenv('POSTGRES_USER', 'postgres'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', ''),
+            'PORT': os.getenv('DB_PORT', 5432)
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -115,7 +126,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'collected_static'
+STATIC_ROOT = BASE_DIR / 'backend_static'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

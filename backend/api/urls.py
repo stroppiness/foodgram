@@ -1,22 +1,23 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (GetIngredientsViewSet, GetOrRemoveTokenViewSet,
-                    GetRecipesViewSet, GetSubstriptionViewset, GetTagViewSet,
-                    GetUserViewSet, SignUpView)
+from .views import (GetIngredientsViewSet,
+                    GetRecipesViewSet, GetSubscriptionViewset, GetTagViewSet,
+                    GetUserViewSet, short_recipe_link)
 
 router = DefaultRouter()
 router.register(
     'users/subscriptions',
-    GetSubstriptionViewset,
+    GetSubscriptionViewset,
     basename='subscriptions'
 )
-router.register('auth/token', GetOrRemoveTokenViewSet, basename='auth-token')
 router.register('users', GetUserViewSet, basename='users')
-router.register('tags', GetTagViewSet)
-router.register('recipes', GetRecipesViewSet)
-router.register('ingredients', GetIngredientsViewSet)
+router.register('tags', GetTagViewSet, basename='tags')
+router.register('recipes', GetRecipesViewSet, basename='recipes')
+router.register('ingredients', GetIngredientsViewSet, basename='ingredients')
 urlpatterns = [
     path('', include(router.urls)),
-    path('users/', SignUpView.as_view()),
+    path('s/<int:recipe_id>/', short_recipe_link, name='short-recipe'),
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken'))
 ]

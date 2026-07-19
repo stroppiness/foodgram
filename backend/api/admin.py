@@ -1,10 +1,18 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 
-from .models import Ingredient, Recipe, Subscription, Tag, Unit, User
+from .models import (Ingredient,
+                     Recipe, Subscription,
+                     Tag, RecipeIngredient, User as CustomUser)
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class RecipeIngredientInline(admin.TabularInline):
+    model = RecipeIngredient
+    min_num = 1
+
+
+@admin.register(CustomUser)
+class CustomUserAdmin(UserAdmin):
     list_display = ('username', 'email',)
     search_fields = ('username', 'email',)
 
@@ -30,15 +38,11 @@ class TagAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 
-@admin.register(Unit)
-class UnitAdmin(admin.ModelAdmin):
-    list_display = ('name', 'symbol',)
-
-
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name',)
-    search_fields = ('name',)
+    search_fields = ('name', 'measurement_unit',)
+    list_filter = ('measurement_unit',)
 
 
 @admin.register(Recipe)
@@ -49,5 +53,11 @@ class RecipeAdmin(admin.ModelAdmin):
         'image',
         'cooking_time',
     )
-    search_fields = ('author', 'cooking_time', 'name',)
-    list_filter = ('cooking_time', 'author',)
+    list_display = ('name', 'author', 'cooking_time',)
+    search_fields = ('author__username', 'name',)
+    list_filter = ('author', 'tags',)
+    inlines = (RecipeIngredientInline,)
+
+    @admin.display(description='В избранном')
+    def favorites_count(self, obj):
+        return obj.favorited_by.count()

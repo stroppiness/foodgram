@@ -4,7 +4,6 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip install gunicorn==25.3.0
 RUN pip install -r requirements.txt --no-cache-dir
 
 COPY . .

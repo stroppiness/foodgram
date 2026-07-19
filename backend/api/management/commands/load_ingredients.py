@@ -1,7 +1,8 @@
 import csv
 
-from api.models import Ingredient, Unit
 from django.core.management.base import BaseCommand
+
+from api.models import Ingredient
 
 
 class Command(BaseCommand):
@@ -13,25 +14,21 @@ class Command(BaseCommand):
             'data/ingredients.csv',
             encoding='utf-8'
         ) as file:
-
             reader = csv.reader(file)
 
             ingredients = []
 
             for row in reader:
-                unit, _ = Unit.objects.get_or_create(
-                    symbol=row[1]
-                )
-
                 ingredients.append(
                     Ingredient(
                         name=row[0],
-                        measurement_unit=unit
+                        measurement_unit=row[1]
                     )
                 )
 
             Ingredient.objects.bulk_create(
-                ingredients
+                ingredients,
+                ignore_conflicts=True
             )
 
         self.stdout.write(
