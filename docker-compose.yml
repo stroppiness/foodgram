@@ -44,6 +44,9 @@ services:
   gateway:
     image: stroppiness/foodgram_gateway
     container_name: nginx_container
+    depends_on:
+      - frontend
+      - backend
     restart: on-failure
     env_file: .env
     ports:
@@ -51,4 +54,3 @@ services:
     volumes:
       - static:/static
       - foodgram_media:/media
-#1

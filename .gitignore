@@ -16,6 +16,7 @@ build/
 develop-eggs/
 dist/
 downloads/
+backend_static/
 eggs/
 .eggs/
 lib/
