@@ -12,8 +12,7 @@ from rest_framework.response import Response
 from .create_shopping_txt import create_shopping_list
 from .filters import IngredientsSearchFilter, RecipeFilter
 from .models import (Ingredient, Recipe, Subscription,
-                     Tag, User, ShoppingCart, Favorite, RecipeIngredient,
-                     Subscription)
+                     Tag, User, ShoppingCart, Favorite, RecipeIngredient)
 from .pagination import Pagination
 from .permissions import IsAuthorOrReadOnly
 from .serializers import (ChangePasswordSerializer, GetTagSerializer,

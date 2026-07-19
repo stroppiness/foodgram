@@ -1,4 +1,3 @@
-from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
