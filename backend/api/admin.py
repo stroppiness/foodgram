@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db.models import Count
 from django.contrib.auth.admin import UserAdmin
 
 from .models import (Ingredient,
@@ -32,6 +33,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'author',
     )
 
+
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
@@ -40,6 +42,7 @@ class FavoriteAdmin(admin.ModelAdmin):
         'created',
     )
     ordering = ('-created',)
+
 
 @admin.register(ShoppingCart)
 class ShoppingCartAdmin(admin.ModelAdmin):
@@ -72,7 +75,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        
+
         return queryset.annotate(
             _favorites_count=Count('favorite', distinct=True)
         )

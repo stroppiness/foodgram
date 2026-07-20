@@ -168,6 +168,7 @@ class GetUserViewSet(
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class GetSubscriptionViewset(viewsets.ReadOnlyModelViewSet):
     """
     Вьюсет для get-запроса ресурса subscription.
@@ -317,7 +318,7 @@ class GetRecipesViewSet(viewsets.ModelViewSet):
         ).values(
             'ingredient__name',
             'ingredient__measurement_unit'
-        ).annotate(
+        ).annotateV(
             total_amount=Sum('amount')
         ).order_by('ingredient__name')
 
@@ -366,7 +367,6 @@ class GetRecipesViewSet(viewsets.ModelViewSet):
             )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 
     @action(
         detail=True,
