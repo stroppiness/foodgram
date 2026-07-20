@@ -2,8 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import (Ingredient,
-                     Recipe, Subscription,
-                     Tag, RecipeIngredient, User as CustomUser)
+                     Recipe, Subscription, Favorite, ShoppingCart,
+                     Tag, RecipeIngredient, User as BaseUser)
 
 
 class RecipeIngredientInline(admin.TabularInline):
@@ -11,8 +11,8 @@ class RecipeIngredientInline(admin.TabularInline):
     min_num = 1
 
 
-@admin.register(CustomUser)
-class CustomUserAdmin(UserAdmin):
+@admin.register(BaseUser)
+class UserAdmin(UserAdmin):
     list_display = ('username', 'email',)
     search_fields = ('username', 'email',)
 
@@ -32,6 +32,24 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'author',
     )
 
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+        'created',
+    )
+    ordering = ('-created',)
+
+@admin.register(ShoppingCart)
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'user',
+        'recipe',
+        'created',
+    )
+    ordering = ('-created',)
+
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
@@ -47,17 +65,19 @@ class IngredientAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
-    list_display = (
-        'name',
-        'author',
-        'image',
-        'cooking_time',
-    )
-    list_display = ('name', 'author', 'cooking_time',)
+    list_display = ('name', 'author', 'cooking_time', 'favorites_count')
     search_fields = ('author__username', 'name',)
     list_filter = ('author', 'tags',)
     inlines = (RecipeIngredientInline,)
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        
+        return queryset.annotate(
+            _favorites_count=Count('favorite', distinct=True)
+        )
+
     @admin.display(description='В избранном')
     def favorites_count(self, obj):
-        return obj.favorited_by.count()
+
+        return getattr(obj, '_favorites_count', 0)

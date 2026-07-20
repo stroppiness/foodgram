@@ -1,9 +1,13 @@
-from rest_framework import serializers
+from django.contrib.auth.password_validation import (
+    validate_password as django_validate_password
+)
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers
 
 from .models import (Ingredient, Recipe, RecipeIngredient,
-                     Tag, User)
+                     Tag, User, Subscription)
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -22,6 +26,16 @@ class SignupSerializer(serializers.ModelSerializer):
             'last_name',
             'password'
         )
+
+    def validate_password(self, value):
+
+        try:
+            django_validate_password(password=value, user=None)
+
+        except DjangoValidationError:
+            raise serializers.ValidationError('Ненадежный пароль.')
+
+        return value
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -46,7 +60,15 @@ class GetUserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
-        return getattr(obj, 'is_subscribed', False)
+        request = self.context.get('request')
+
+        if request is None or request.user.is_anonymous:
+            return False
+
+        return Subscription.objects.filter(
+            user=request.user,
+            author=obj
+        ).exists()
 
 
 class RecipeSubscriptionSerializer(serializers.ModelSerializer):
@@ -65,7 +87,7 @@ class PostSubscriptionSerializer(serializers.ModelSerializer):
     """
     Сериализатор получения сведений о подписке на пользователя.
     """
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(default=0)
     is_subscribed = serializers.BooleanField(read_only=True)
     recipes = serializers.SerializerMethodField()
 
@@ -83,9 +105,6 @@ class PostSubscriptionSerializer(serializers.ModelSerializer):
             'avatar',
         )
 
-    def get_is_subscribed(self, obj):
-        return getattr(obj, 'is_subscribed', False)
-
     def get_recipes(self, obj):
         recipes = obj.recipes.all()
 
@@ -102,9 +121,6 @@ class PostSubscriptionSerializer(serializers.ModelSerializer):
             many=True,
             context=self.context
         ).data
-
-    def get_recipes_count(self, obj):
-        return obj.recipes.count()
 
 
 class PutAvatarSerializer(serializers.ModelSerializer):
@@ -129,12 +145,12 @@ class ChangePasswordSerializer(serializers.Serializer):
         user = self.context['request'].user
 
         if not user.check_password(value):
-            raise serializers.ValidationError({'error': 'Неверный пароль'})
+            raise serializers.ValidationError({'Неверный пароль'})
 
         return value
 
     def validate(self, attrs):
-        current_password = attrs.get('old_password')
+        current_password = attrs.get('current_password')
         new_password = attrs.get('new_password')
 
         if current_password == new_password:
@@ -233,6 +249,12 @@ class RecipesPostSerializer(serializers.ModelSerializer):
         required=True,
         allow_empty=False,
     )
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(),
+        many=True,
+        allow_empty=False,
+        required=True
+    )
     author = GetUserSerializer(read_only=True)
     cooking_time = serializers.IntegerField(min_value=1)
 
@@ -281,14 +303,14 @@ class RecipesPostSerializer(serializers.ModelSerializer):
         if self.instance and 'recipe_ingredients' not in attrs:
             raise serializers.ValidationError(
                 {
-                    'tags': 'Поле обязательно.'
+                    'ingredients': 'Поле обязательно.'
                 }
             )
 
         if self.instance and 'tags' not in attrs:
             raise serializers.ValidationError(
                 {
-                    'ingredients': 'Поле обязательно.'
+                    'tags': 'Поле обязательно.'
                 }
             )
 
@@ -384,13 +406,3 @@ class IngredientSerializer(serializers.ModelSerializer):
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
-
-class GetTokenSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор получения токена.
-    """
-    email = serializers.EmailField(required=True)
-
-    class Meta:
-        model = User
-        fields = ('email', 'password')

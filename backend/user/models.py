@@ -1,23 +1,19 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from api.constants import USER_NAME_MAX_LENGTH, USER_EMAIL_MAX_LENGTH
+
 
 class User(AbstractUser):
     email = models.EmailField(
-        max_length=254,
+        max_length=USER_EMAIL_MAX_LENGTH,
         unique=True,
-        blank=False,
-        null=False
     )
     first_name = models.CharField(
-        max_length=150,
-        blank=False,
-        null=False
+        max_length=USER_NAME_MAX_LENGTH,
     )
     last_name = models.CharField(
-        max_length=150,
-        blank=False,
-        null=False
+        max_length=USER_NAME_MAX_LENGTH,
     )
     avatar = models.ImageField(
         upload_to='avatars/',
@@ -26,7 +22,11 @@ class User(AbstractUser):
     )
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = [
+        'username',
+        'first_name',
+        'last_name'
+    ]
 
     class Meta:
         ordering = ['username']

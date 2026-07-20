@@ -61,11 +61,15 @@ class Ingredient(models.Model):
         max_length=INGREDIENT_NAME_MAX_LENGTH,
         verbose_name='Название'
     )
-    measurement_unit = models.TextField(verbose_name='Единица измерения')
+    measurement_unit = models.CharField(
+        verbose_name='Единица измерения',
+        max_length=MAX_LENGTH
+    )
 
     class Meta:
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
+        ordering = ['-name']
 
         constraints = [
             models.UniqueConstraint(
@@ -92,8 +96,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         upload_to='recipes/',
         verbose_name='Картинка',
-        null=False,
-        blank=False
     )
     text = models.TextField(verbose_name='Описание')
     ingredients = models.ManyToManyField(
@@ -171,6 +173,12 @@ class FavoriteAndShopCartModel(models.Model):
 
     class Meta:
         abstract = True
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_%(class)s'
+            )
+        ]
 
 
 class Favorite(FavoriteAndShopCartModel):
