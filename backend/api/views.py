@@ -207,7 +207,7 @@ def short_recipe_link(request, recipe_id):
     """
     get_object_or_404(Recipe, id=recipe_id)
 
-    return redirect(f'/recipes/{recipe_id}/')
+    return redirect(f'/recipes/{recipe_id}')
 
 
 class GetRecipesViewSet(viewsets.ModelViewSet):
