@@ -82,7 +82,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           source: "docker-compose.yml"
-          target: "foodgram"
+          target: "/home/${{ secrets.USER }}/my_projects/foodgram"
       - name: Executing remote ssh commands to deploy
         uses: appleboy/ssh-action@master
         with:
